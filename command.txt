@@ -1,0 +1,15 @@
+select group DEVICE-LAB-A
+task simulate-traffic-pressure --scenario http_flood --target-asset lab-web-01 --target-url https://lab.example.invalid/health --intensity low --duration 30s --generate-real-traffic false
+task simulate-traffic-pressure --scenario http_flood --target-asset lab-web-01 --target-url https://lab.example.invalid/login --intensity medium --duration 60s --generate-real-traffic false
+
+select group DEVICE-LAB-B
+task simulate-connection-pressure --scenario tcp_connection_spike --target-asset lab-api-01 --target-port-label api_https --concurrent-sessions simulated_500 --duration 45s --generate-real-traffic false
+task simulate-request-burst --scenario api_burst --target-asset lab-api-01 --endpoint-label /v1/search --rps simulated_200 --duration 30s --generate-real-traffic false
+
+select group DEVICE-LAB-C
+task simulate-bandwidth-pressure --scenario large_response_download --target-asset lab-cdn-01 --bandwidth-level simulated_high --duration 60s --generate-real-traffic false
+task simulate-slow-clients --scenario slow_request_pattern --target-asset lab-web-02 --client-count simulated_100 --hold-time 120s --generate-real-traffic false
+
+select group DEVICE-LAB-ALL
+task report-simulated-pressure-status --include-target-summary true --include-device-count true --include-task-state true
+task stop-simulation --reason "test-window-ended"
